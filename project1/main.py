@@ -40,10 +40,15 @@ def main():
     
     
     scrapper_time_start = time.time()
-    
+
+    p = 0
 
     for symbol in worker.get_sp_500_companies():
-        symbol_queue.put(symbol)
+        if p < 10:
+            symbol_queue.put(symbol)
+            p += 1
+        
+
             
     
     
