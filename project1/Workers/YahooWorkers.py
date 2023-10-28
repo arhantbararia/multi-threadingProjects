@@ -6,11 +6,18 @@ import random
 import datetime
 
 
-class YahooFinananceScheduler(threading.Thread):
+class YahooFinanceScheduler(threading.Thread):
     def __init__(self, input_queue, output_queue,**kwargs):
-        super(YahooFinananceScheduler, self ).__init__(**kwargs)
+        super(YahooFinanceScheduler, self ).__init__(**kwargs)
         self._input_queue = input_queue
-        self._output_queue = output_queue
+
+        temp_queue = output_queue
+        if type(temp_queue) != list:
+            temp_queue = [temp_queue]
+        
+
+        self._output_queue = temp_queue
+        
         self.start()
 
     def run(self):
@@ -18,14 +25,14 @@ class YahooFinananceScheduler(threading.Thread):
             val = self._input_queue.get()
             if val == 'DONE':
                 if self._output_queue is not None:
-                    self._output_queue.put('DONE')
+                    self._output_queue[0].put('DONE')
                 break
             
             yahooFinanceWorker = YahooFinanceWorker(symbol = val)
             price = yahooFinanceWorker.get_price()
             if self._output_queue is not None:
                 output = (val , price , str(datetime.datetime.utcnow()).split('.')[0] )
-                self._output_queue.put(output)
+                self._output_queue[0].put(output)
             time.sleep(random.random() * 50 )
 
 

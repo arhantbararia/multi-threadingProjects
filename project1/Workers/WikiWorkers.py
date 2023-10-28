@@ -1,6 +1,28 @@
+import threading
+
 import requests
 from bs4 import BeautifulSoup
 
+class WikiWorkerMasterScheduler(threading.Thread):
+    def __init__(self , output_queue ,**kwargs ):
+        if 'input_queue' in kwargs:
+            kwargs.pop('input_queue')
+
+        entries = kwargs.pop('entries')
+        self._input_values = kwargs.pop('input_values')
+
+        super(WikiWorkerMasterScheduler, self).__init__(**kwargs)
+        temp_queue = output_queue
+        if type(temp_queue) != list:
+            temp_queue = [temp_queue]
+        self._output_queues = temp_queue
+        
+        
+        self.start()
+
+    def run(self):
+        while True:
+            pass
 
 
 class WikiWorker():
@@ -18,7 +40,7 @@ class WikiWorker():
         
         table_rows = table.find_all('tr')
         
-        i = 1
+        
         
         for table_row in table_rows[1:]:
             symbol = table_row.find('td').text.strip('\n')
