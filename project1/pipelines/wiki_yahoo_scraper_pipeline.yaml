@@ -6,14 +6,14 @@ queues:
     description: contains data that needs to be uploaded to postgres
   
 workers:
-  # - name: WikiWorker
-  #   description: This scraps raw wikipedia page and pulls out symbols
-  #   location: Workers.WikiWorkers
-  #   class: WikiWorker
-  #   input_values:
-  #     - "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-  #   output_queues:
-  #     - symbol_queue
+  - name: WikiWorker
+    description: This scraps raw wikipedia page and pulls out symbols
+    location: Workers.WikiWorkers
+    class: WikiWorkerMasterScheduler
+    input_values:
+      - "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    output_queues:
+      - symbol_queue
   
   - name: YahooFinanceWorker
     description: pulls prices from yahoo finance
@@ -30,4 +30,10 @@ workers:
     class: MySqlMasterScheduler
     instances: 3
     input_queue: MySQLUploading
+
+
+
+
+
+
 

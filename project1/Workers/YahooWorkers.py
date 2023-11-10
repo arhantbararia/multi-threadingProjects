@@ -8,6 +8,9 @@ import datetime
 
 class YahooFinanceScheduler(threading.Thread):
     def __init__(self, input_queue, output_queue,**kwargs):
+        if 'input_values' in kwargs:
+            kwargs.pop('input_values')
+            
         super(YahooFinanceScheduler, self ).__init__(**kwargs)
         self._input_queue = input_queue
 
@@ -22,10 +25,16 @@ class YahooFinanceScheduler(threading.Thread):
 
     def run(self):
         while True:
-            val = self._input_queue.get()
+            try:
+                val = self._input_queue.get()
+            except Empty:
+                print('yahoo scheduler queue is empty, stopping')
+                break
+
             if val == 'DONE':
                 if self._output_queue is not None:
-                    self._output_queue[0].put('DONE')
+                    for output_queue in self._output_queue:
+                        output_queue.put('DONE')
                 break
             
             yahooFinanceWorker = YahooFinanceWorker(symbol = val)

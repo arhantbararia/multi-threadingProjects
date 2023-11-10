@@ -8,7 +8,7 @@ class WikiWorkerMasterScheduler(threading.Thread):
         if 'input_queue' in kwargs:
             kwargs.pop('input_queue')
 
-        entries = kwargs.pop('entries')
+        
         self._input_values = kwargs.pop('input_values')
 
         super(WikiWorkerMasterScheduler, self).__init__(**kwargs)
@@ -21,13 +21,24 @@ class WikiWorkerMasterScheduler(threading.Thread):
         self.start()
 
     def run(self):
-        while True:
-            pass
+        for entry in self._input_values:
+            wikiWorker = WikiWorker(url = entry)
+            symbol_counter = 0
+            for symbol in wikiWorker.get_sp_500_companies():
+                for output_queue in self._output_queues:
+                    output_queue.put(symbol)
+                symbol_counter += 1
+                if symbol_counter >= 5:
+                    break
+        
+        for out_queue in self._output_queues:
+            for i in range(20):
+                output_queue.put('DONE')
 
 
 class WikiWorker():
-    def __init__(self):
-        self.url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+    def __init__(self , url):
+        self._url = url
 
 
     @staticmethod
@@ -48,7 +59,7 @@ class WikiWorker():
             yield symbol
 
     def get_sp_500_companies(self):
-        response= requests.get(self.url)
+        response= requests.get(self._url)
 
         if response.status_code != 200:
             print("Couldn't get entries")

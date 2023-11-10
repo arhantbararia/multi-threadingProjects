@@ -6,7 +6,12 @@ import mysql.connector
 
 class MySqlMasterScheduler(threading.Thread):
     def __init__(self , input_queue , **kwargs):
-        kwargs.pop('output_queue')
+        if ('output_queue') in kwargs:
+            kwargs.pop('output_queue')
+
+        if 'input_values' in kwargs:
+            kwargs.pop('input_values')
+            
         super(MySqlMasterScheduler, self).__init__(**kwargs)
         self._input_queue = input_queue
         self.start()
